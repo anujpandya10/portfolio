@@ -873,6 +873,189 @@
     .about-photo-wrap { max-width: 240px; margin: 0 auto 2rem; }
   }
 
+
+  /* QR BUTTON & MODAL */
+  .qr-trigger {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 500;
+    width: 56px;
+    height: 56px;
+    background: var(--ink);
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 4px 24px rgba(13,13,13,0.25);
+  }
+
+  .qr-trigger:hover {
+    background: var(--accent);
+    transform: scale(1.05);
+  }
+
+  .qr-trigger svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--paper);
+  }
+
+  .qr-tooltip {
+    position: absolute;
+    right: 64px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .qr-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: var(--ink);
+  }
+
+  .qr-trigger:hover .qr-tooltip { opacity: 1; }
+
+  /* MODAL */
+  .qr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .qr-modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .qr-modal {
+    background: var(--paper);
+    padding: 3rem 2.5rem 2.5rem;
+    text-align: center;
+    position: relative;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s;
+    max-width: 340px;
+    width: 90%;
+  }
+
+  .qr-modal-overlay.open .qr-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .qr-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    padding: 0.25rem 0.5rem;
+    transition: color 0.2s;
+  }
+
+  .qr-modal-close:hover { color: var(--accent); }
+
+  .qr-modal-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .qr-modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+
+  .qr-modal-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 2rem;
+  }
+
+  .qr-code-wrap {
+    display: inline-block;
+    padding: 1rem;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .qr-code-wrap::before,
+  .qr-code-wrap::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: var(--accent);
+    border-style: solid;
+  }
+
+  .qr-code-wrap::before {
+    top: -4px; left: -4px;
+    border-width: 3px 0 0 3px;
+  }
+
+  .qr-code-wrap::after {
+    bottom: -4px; right: -4px;
+    border-width: 0 3px 3px 0;
+  }
+
+  .qr-code-wrap img {
+    width: 200px;
+    height: 200px;
+    display: block;
+  }
+
+  .qr-modal-url {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .qr-modal-url span {
+    color: var(--accent);
+  }
+
 </style>
 </head>
 <body>
@@ -1328,5 +1511,28 @@
     });
   });
 </script>
+
+<!-- QR FLOATING BUTTON -->
+<button class="qr-trigger" onclick="document.getElementById('qrModal').classList.add('open')" aria-label="Show QR Code">
+  <div class="qr-tooltip">Scan to share</div>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 3h7v7H3V3zm1 1v5h5V4H4zm1 1h3v3H5V5zM14 3h7v7h-7V3zm1 1v5h5V4h-5zm1 1h3v3h-3V5zM3 14h7v7H3v-7zm1 1v5h5v-5H4zm1 1h3v3H5v-3zM14 14h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2z"/>
+  </svg>
+</button>
+
+<!-- QR MODAL -->
+<div class="qr-modal-overlay" id="qrModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="qr-modal">
+    <button class="qr-modal-close" onclick="document.getElementById('qrModal').classList.remove('open')">✕ Close</button>
+    <div class="qr-modal-eyebrow">Scan to Connect</div>
+    <div class="qr-modal-title">Anuj Pandya</div>
+    <div class="qr-modal-sub">TPM · Founder · Builder</div>
+    <div class="qr-code-wrap">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAaQAAAGkCAIAAADxLsZiAAAIFUlEQVR4nO3dPW41QRVFUYy+QZAQMv8BEZI4dOKcmMQqRHF9u/daA/Dr9+OtSo7q4/vr8y8Ab/fX334AgAliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkPBn8sX+9vd/TL7cKp//+ueVv3PrMzx5npPXuvW+Ttx6nsnf4bbn2Wby9+NkBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QMLoNvbE5FbullvbxifuXief+ZYn7oLL/xe3ONkBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QsG4be2LbvZ+Tr3Xy3rdtEidNvvdt+9m3/l/c4mQHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAwiO3sfxs227x1vPc+jvl7XCZkx2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJtrEvdGv7uW1je6L83vmZkx2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJj9zGvnW3eLLrnLw7ddvzTN4/+8SN7Vv/L25xsgMSxA5IEDsgQeyABLEDEsQOSBA7IEHsgASxAxLEDkgQOyBh3Tb21iax7NbO9NZ3Mfk82/7OLf4v/ndOdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySMbmPda/ks2/ahT7w39oT/ixlOdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySsuzd20ra7OLdtJG/dr/pE2+7VPTH5XTzxt+FkBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QMLH99fnbz/Df+2Jd3raP+6x7X3dep5tW+8Tk5+zkx2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJ67axb9293to2Tv6dE5Ob322b1hPbnnnbb8M2FuAysQMSxA5IEDsgQeyABLEDEsQOSBA7IEHsgASxAxLEDkj4M/li5btTt93p+cTvYtv3PmnbznTb53PCyQ5IEDsgQeyABLEDEsQOSBA7IEHsgASxAxLEDkgQOyBB7ICE0W3spMnt3hP3s9vujT1RfuZttv2eTzjZAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkPDabeyJW/u+bTvBJ25ITzzxMzwx+Rub/DvbONkBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2Q8Mht7K2N5OTfubVJfOtu8cS293Xru9j2vrY9zy1OdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySs28a+dZd3y7Z7P594R+3kpnXbXa5PvAf5Fic7IEHsgASxAxLEDkgQOyBB7IAEsQMSxA5IEDsgQeyABLEDEj6+vz5/+xn+w7YN4IlbO8G3bhu37Z237Tq3fT5v5WQHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAwug21q7zZ5N73hOTm99bys98Ytv7mnweJzsgQeyABLEDEsQOSBA7IEHsgASxAxLEDkgQOyBB7IAEsQMS/ky+2Fvvx9x2D+nkJvGJ3+m2Z972PNs2rbc42QEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAwuo19q8m7brfdvfvEe1pPbHtfT7xbdtt36mQHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAwsf31+fYi23b922773XbM996nsm/c2Lbvnibbd/XLU52QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIxuY/lZeR+6bYd7y+Q+1OfzMyc7IEHsgASxAxLEDkgQOyBB7IAEsQMSxA5IEDsgQeyABLEDEv5Mvthb79k8MblpPbFt93rLE39j2+5g3fZbvcXJDkgQOyBB7IAEsQMSxA5IEDsgQeyABLEDEsQOSBA7IEHsgITRbeyJyQ3gLU+8Z3PymSe3n9vuRT2xbTs8eYfvJCc7IEHsgASxAxLEDkgQOyBB7IAEsQMSxA5IEDsgQeyABLEDEtZtY088cYv6RNve++Rm89Zv7K073CfuZ53sgASxAxLEDkgQOyBB7IAEsQMSxA5IEDsgQeyABLEDEsQOSHjkNvatJveG2+4qPTH5zNt2wZM70yd+Xyec7IAEsQMSxA5IEDsgQeyABLEDEsQOSBA7IEHsgASxAxLEDkiwjWWFbTvKbXcTb9sFn3w+7o0F+AViBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkPDIbey2HWXZ5Ib0xOTdu5PvffKZ3/r/5WQHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAwrpt7Lat5Vvd2kg+cUf51mfetnvd9jk72QEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZDw8f31+dvPAPB/52QHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAgtgBCWIHJIgdkCB2QILYAQliBySIHZAgdkCC2AEJYgckiB2QIHZAwr8BiFMZCabrP+kAAAAASUVORK5CYII=" alt="QR Code for anujpandya.info" />
+    </div>
+    <div class="qr-modal-url"><span>anujpandya.info</span></div>
+  </div>
+</div>
+
 </body>
 </html>
