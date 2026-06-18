@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Booking Admin — Anuj Pandya</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --accent: #c8401a;
+    --gold: #b8962e;
+    --muted: #6b6458;
+    --card-bg: #eee8d8;
+    --border: rgba(13,13,13,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--paper); color: var(--ink); font-family: 'Instrument Sans', sans-serif; font-size: 15px; }
+  a { color: inherit; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 1.1rem 2.5rem; border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 700; text-decoration: none; }
+  .nav-right { display: flex; gap: 1.5rem; align-items: center; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+  .nav-right a, .nav-right button { color: var(--muted); background: none; border: none; cursor: pointer; font-family: inherit; font-size: inherit; letter-spacing: inherit; text-transform: inherit; }
+  .nav-right a:hover, .nav-right button:hover { color: var(--accent); }
+
+  .login-wrap { max-width: 360px; margin: 6rem auto; padding: 0 1.5rem; text-align: center; }
+  .login-wrap h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 1.5rem; }
+  .login-wrap input { width: 100%; padding: 0.8rem 1rem; border: 1.5px solid var(--border); background: var(--card-bg); font-family: 'DM Mono', monospace; margin-bottom: 1rem; text-align: center; letter-spacing: 0.1em; }
+  .login-wrap input:focus { outline: none; border-color: var(--accent); }
+  .btn { display: inline-block; padding: 0.75rem 1.8rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; border: 2px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; transition: background 0.2s; }
+  .btn:hover { background: var(--accent); border-color: var(--accent); }
+  .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.65rem; }
+  .btn-outline { background: transparent; color: var(--ink); }
+  .err { color: var(--accent); font-size: 0.85rem; margin-top: 0.8rem; min-height: 1.2em; }
+
+  .app { display: none; max-width: 1080px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .tabs { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  .tab { padding: 0.7rem 1.2rem; font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-color: var(--accent); }
+
+  .tabpanel { display: none; }
+  .tabpanel.active { display: block; }
+
+  .filter-row { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+  .filter-chip { padding: 0.4rem 0.9rem; border: 1.5px solid var(--border); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; background: var(--card-bg); }
+  .filter-chip.active { border-color: var(--accent); background: #f6e9e4; }
+
+  .booking-card { border: 1.5px solid var(--border); background: var(--card-bg); padding: 1.2rem 1.4rem; margin-bottom: 1rem; }
+  .booking-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.6rem; }
+  .booking-who { font-weight: 600; }
+  .booking-when { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+  .badge { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.25rem 0.6rem; border-radius: 2px; }
+  .badge-pending { background: #f0e2b8; color: #6b531a; }
+  .badge-confirmed { background: #cfe8d4; color: #1f5c33; }
+  .badge-declined { background: #ecd0cc; color: #7a2a1e; }
+  .badge-cancelled { background: #ddd9d0; color: #555; }
+  .booking-meta { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+  .booking-meta span { color: var(--ink); }
+  .booking-msg { font-size: 0.85rem; margin-bottom: 0.8rem; white-space: pre-wrap; }
+  .booking-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .empty-state { color: var(--muted); padding: 2rem 0; text-align: center; }
+
+  .avail-section { margin-bottom: 2.5rem; }
+  .avail-section h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 1rem; }
+  .day-row { display: grid; grid-template-columns: 100px 90px 90px 90px 70px; gap: 0.7rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .day-row label { display: flex; align-items: center; gap: 0.4rem; }
+  .day-row input[type="time"], .day-row input[type="number"] { width: 100%; padding: 0.4rem; border: 1.5px solid var(--border); background: var(--card-bg); font-family: 'DM Mono', monospace; font-size: 0.78rem; }
+  .col-head { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+  .blocked-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+  .add-blocked { display: flex; gap: 0.6rem; margin-top: 1rem; flex-wrap: wrap; }
+  .add-blocked input { padding: 0.55rem 0.7rem; border: 1.5px solid var(--border); background: var(--card-bg); font-family: 'Instrument Sans', sans-serif; }
+  .save-row { margin-top: 1.2rem; display: flex; align-items: center; gap: 1rem; }
+  .save-msg { font-size: 0.82rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">AP<span style="color:var(--accent)">.</span> Admin</a>
+  <div class="nav-right">
+    <a href="/">Site</a>
+    <button id="logoutBtn" style="display:none">Log out</button>
+  </div>
+</nav>
+
+<div class="login-wrap" id="loginWrap">
+  <h1>Booking Admin</h1>
+  <input type="password" id="passcodeInput" placeholder="Passcode" autocomplete="off" />
+  <button class="btn" id="loginBtn" style="width:100%">Unlock</button>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<div class="app" id="app">
+  <div class="tabs">
+    <div class="tab active" data-tab="bookings">Bookings</div>
+    <div class="tab" data-tab="availability">Availability</div>
+  </div>
+
+  <div class="tabpanel active" data-tabpanel="bookings">
+    <div class="filter-row" id="filterRow"></div>
+    <div id="bookingsList"></div>
+  </div>
+
+  <div class="tabpanel" data-tabpanel="availability">
+    <div class="avail-section">
+      <h2>Weekly availability (Central Time)</h2>
+      <div class="day-row">
+        <div class="col-head">Day</div>
+        <div class="col-head">Start</div>
+        <div class="col-head">End</div>
+        <div class="col-head">Slot (min)</div>
+        <div class="col-head">Active</div>
+      </div>
+      <div id="windowRows"></div>
+      <div class="save-row">
+        <button class="btn btn-sm" id="saveWindowsBtn">Save weekly availability</button>
+        <span class="save-msg" id="windowsSaveMsg"></span>
+      </div>
+    </div>
+
+    <div class="avail-section">
+      <h2>Blocked dates</h2>
+      <div id="blockedList"></div>
+      <div class="add-blocked">
+        <input type="date" id="newBlockedDate" />
+        <input type="text" id="newBlockedReason" placeholder="Reason (optional)" />
+        <button class="btn btn-sm" id="addBlockedBtn">Block date</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://oebbaauyjgajhpwyeneh.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYmJhYXV5amdhamhwd3llbmVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTY3ODEsImV4cCI6MjA5MzE5Mjc4MX0.fC2yUsgoq9WttTpc34HNsGdz4pOLrXAVyPZg6mLVr3g";
+  const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  function fnUrl(name) { return `${SUPABASE_URL}/functions/v1/${name}`; }
+
+  function getToken() { return sessionStorage.getItem("admin_token"); }
+  function setToken(t) { sessionStorage.setItem("admin_token", t); }
+  function clearToken() { sessionStorage.removeItem("admin_token"); }
+
+  function authHeaders(extra) {
+    return Object.assign({
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+      "x-admin-token": getToken() || "",
+    }, extra || {});
+  }
+
+  async function adminFetch(name, opts) {
+    const res = await fetch(fnUrl(name), Object.assign({}, opts, { headers: authHeaders((opts || {}).headers) }));
+    if (res.status === 401) {
+      clearToken();
+      showLogin();
+      throw new Error("Session expired");
+    }
+    return res;
+  }
+
+  function showLogin() {
+    document.getElementById("loginWrap").style.display = "block";
+    document.getElementById("app").style.display = "none";
+    document.getElementById("logoutBtn").style.display = "none";
+  }
+
+  function showApp() {
+    document.getElementById("loginWrap").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("logoutBtn").style.display = "inline";
+    loadBookings();
+    loadAvailability();
+  }
+
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const passcode = document.getElementById("passcodeInput").value;
+    const err = document.getElementById("loginErr");
+    err.textContent = "";
+    try {
+      const res = await fetch(fnUrl("admin-login"), {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ passcode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        err.textContent = data.error || "Login failed";
+        return;
+      }
+      setToken(data.token);
+      showApp();
+    } catch (e) {
+      err.textContent = "Network error — please try again.";
+    }
+  });
+
+  document.getElementById("passcodeInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("loginBtn").click();
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    clearToken();
+    showLogin();
+  });
+
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
+      document.querySelectorAll(".tabpanel").forEach((p) => p.classList.toggle("active", p.dataset.tabpanel === tab.dataset.tab));
+    });
+  });
+
+  const STATUS_FILTERS = ["all", "pending", "confirmed", "declined", "cancelled"];
+  let currentFilter = "all";
+  let allBookings = [];
+
+  function renderFilters() {
+    const row = document.getElementById("filterRow");
+    row.innerHTML = "";
+    STATUS_FILTERS.forEach((f) => {
+      const chip = document.createElement("div");
+      chip.className = "filter-chip" + (f === currentFilter ? " active" : "");
+      chip.textContent = f;
+      chip.addEventListener("click", () => {
+        currentFilter = f;
+        renderFilters();
+        renderBookings();
+      });
+      row.appendChild(chip);
+    });
+  }
+
+  function formatDateTime(date, time) {
+    const d = new Date(`${date}T12:00:00Z`);
+    const dateLabel = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/Chicago" });
+    const [h, m] = time.split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${dateLabel} · ${h12}:${String(m).padStart(2, "0")} ${period} CT`;
+  }
+
+  async function loadBookings() {
+    const res = await adminFetch("admin-bookings", { method: "GET" });
+    const data = await res.json();
+    allBookings = data.bookings || [];
+    renderFilters();
+    renderBookings();
+  }
+
+  function renderBookings() {
+    const list = document.getElementById("bookingsList");
+    const filtered = currentFilter === "all" ? allBookings : allBookings.filter((b) => b.status === currentFilter);
+    if (filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state">No bookings here.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    filtered.forEach((b) => {
+      const card = document.createElement("div");
+      card.className = "booking-card";
+      const actions = [];
+      if (b.status !== "confirmed") actions.push(["Confirm", "confirmed"]);
+      if (b.status !== "declined") actions.push(["Decline", "declined"]);
+      if (b.status !== "cancelled") actions.push(["Cancel", "cancelled"]);
+      card.innerHTML = `
+        <div class="booking-top">
+          <div class="booking-who">${escapeHtml(b.name)} &mdash; <span style="color:var(--muted)">${escapeHtml(b.email)}</span></div>
+          <span class="badge badge-${b.status}">${b.status}</span>
+        </div>
+        <div class="booking-when">${formatDateTime(b.booking_date, b.booking_time)}</div>
+        <div class="booking-meta">
+          <span>${escapeHtml(b.reason)}</span> · ${escapeHtml(b.connection_method)}
+          ${b.company ? ` · ${escapeHtml(b.company)}` : ""}
+          ${b.phone ? ` · ${escapeHtml(b.phone)}` : ""}
+        </div>
+        ${b.message ? `<div class="booking-msg">${escapeHtml(b.message)}</div>` : ""}
+        <div class="booking-actions"></div>
+      `;
+      const actionsRow = card.querySelector(".booking-actions");
+      actions.forEach(([label, status]) => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-sm btn-outline";
+        btn.textContent = label;
+        btn.addEventListener("click", async () => {
+          btn.disabled = true;
+          try {
+            await adminFetch("admin-bookings", {
+              method: "PATCH",
+              body: JSON.stringify({ id: b.id, status }),
+            });
+            await loadBookings();
+          } catch (e) {
+            btn.disabled = false;
+          }
+        });
+        actionsRow.appendChild(btn);
+      });
+      list.appendChild(card);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  let currentWindows = [];
+
+  async function loadAvailability() {
+    const res = await adminFetch("admin-availability", { method: "GET" });
+    const data = await res.json();
+    currentWindows = data.windows || [];
+    renderWindowRows();
+    renderBlocked(data.blocked || []);
+  }
+
+  function renderWindowRows() {
+    const container = document.getElementById("windowRows");
+    container.innerHTML = "";
+    for (let dow = 0; dow < 7; dow++) {
+      const existing = currentWindows.find((w) => w.day_of_week === dow);
+      const row = document.createElement("div");
+      row.className = "day-row";
+      row.dataset.dow = dow;
+      row.innerHTML = `
+        <div>${DAY_NAMES[dow]}</div>
+        <input type="time" class="w-start" value="${existing ? existing.start_time.slice(0, 5) : "09:00"}" />
+        <input type="time" class="w-end" value="${existing ? existing.end_time.slice(0, 5) : "17:00"}" />
+        <input type="number" class="w-slot" min="5" step="5" value="${existing ? existing.slot_minutes : 30}" />
+        <label><input type="checkbox" class="w-active" ${existing && existing.active ? "checked" : ""} /></label>
+      `;
+      container.appendChild(row);
+    }
+  }
+
+  document.getElementById("saveWindowsBtn").addEventListener("click", async () => {
+    const rows = document.querySelectorAll("#windowRows .day-row");
+    const windows = [];
+    rows.forEach((row) => {
+      const active = row.querySelector(".w-active").checked;
+      if (!active) return;
+      windows.push({
+        day_of_week: Number(row.dataset.dow),
+        start_time: row.querySelector(".w-start").value,
+        end_time: row.querySelector(".w-end").value,
+        slot_minutes: Number(row.querySelector(".w-slot").value),
+        active: true,
+      });
+    });
+    const msg = document.getElementById("windowsSaveMsg");
+    msg.textContent = "Saving…";
+    try {
+      const res = await adminFetch("admin-availability", { method: "PUT", body: JSON.stringify({ windows }) });
+      if (!res.ok) throw new Error();
+      msg.textContent = "Saved.";
+      await loadAvailability();
+    } catch (e) {
+      msg.textContent = "Failed to save.";
+    }
+    setTimeout(() => { msg.textContent = ""; }, 2500);
+  });
+
+  function renderBlocked(blocked) {
+    const list = document.getElementById("blockedList");
+    if (blocked.length === 0) {
+      list.innerHTML = '<div class="empty-state">No blocked dates.</div>';
+      return;
+    }
+    list.innerHTML = "";
+    blocked.forEach((b) => {
+      const row = document.createElement("div");
+      row.className = "blocked-row";
+      row.innerHTML = `<span>${b.blocked_date}${b.reason ? " — " + escapeHtml(b.reason) : ""}</span>`;
+      const btn = document.createElement("button");
+      btn.className = "btn btn-sm btn-outline";
+      btn.textContent = "Unblock";
+      btn.addEventListener("click", async () => {
+        await adminFetch(`admin-availability?id=${b.id}`, { method: "DELETE" });
+        await loadAvailability();
+      });
+      row.appendChild(btn);
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById("addBlockedBtn").addEventListener("click", async () => {
+    const date = document.getElementById("newBlockedDate").value;
+    const reason = document.getElementById("newBlockedReason").value.trim();
+    if (!date) return;
+    await adminFetch("admin-availability", {
+      method: "POST",
+      body: JSON.stringify({ blocked_date: date, reason: reason || null }),
+    });
+    document.getElementById("newBlockedDate").value = "";
+    document.getElementById("newBlockedReason").value = "";
+    await loadAvailability();
+  });
+
+  if (getToken()) showApp(); else showLogin();
+</script>
+
+</body>
+</html>

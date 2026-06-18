@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Book Time — Anuj Pandya</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --accent: #c8401a;
+    --gold: #b8962e;
+    --muted: #6b6458;
+    --card-bg: #eee8d8;
+    --border: rgba(13,13,13,0.12);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  a { color: inherit; }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .nav-back {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--muted);
+  }
+  .nav-back:hover { color: var(--accent); }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    font-weight: 900;
+    line-height: 1.05;
+    margin-bottom: 0.75rem;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .sub { color: var(--muted); max-width: 540px; margin-bottom: 2.5rem; }
+
+  .steps-track {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .step-dot { flex: 1; padding-bottom: 0.6rem; border-bottom: 2px solid var(--border); transition: color 0.2s, border-color 0.2s; }
+  .step-dot.active, .step-dot.done { color: var(--ink); border-color: var(--accent); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .panel-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .panel-hint { color: var(--muted); font-size: 0.92rem; margin-bottom: 1.5rem; }
+
+  .option-grid { display: grid; gap: 0.9rem; margin-bottom: 2rem; }
+  .option-card {
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    padding: 1.1rem 1.3rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .option-card:hover { border-color: var(--gold); }
+  .option-card.selected { border-color: var(--accent); background: #f6e9e4; }
+  .option-title { font-weight: 600; margin-bottom: 0.3rem; }
+  .option-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
+
+  .field { margin-bottom: 1.3rem; }
+  .field label { display: block; font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .field input, .field textarea {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    padding: 0.75rem 0.9rem;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.96rem;
+    color: var(--ink);
+  }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--accent); }
+  .field textarea { min-height: 110px; resize: vertical; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 540px) { .field-row { grid-template-columns: 1fr; } }
+
+  .date-row { display: flex; gap: 0.6rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+  .date-pill {
+    flex: 0 0 auto;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    padding: 0.7rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .date-pill.selected { border-color: var(--accent); background: #f6e9e4; }
+  .date-pill .dow { color: var(--muted); display: block; font-size: 0.68rem; }
+
+  .time-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.6rem; margin-bottom: 1rem; }
+  .time-btn {
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+  }
+  .time-btn.selected { border-color: var(--accent); background: var(--accent); color: var(--paper); }
+  .tz-note { color: var(--muted); font-size: 0.82rem; margin-bottom: 1.5rem; }
+
+  .summary-card { border: 1.5px solid var(--border); background: var(--card-bg); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .summary-row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.55rem 0; border-bottom: 1px solid var(--border); font-size: 0.92rem; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-label { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; padding-top: 0.15rem; }
+  .summary-value { text-align: right; max-width: 60%; }
+
+  .expect-box { border-left: 3px solid var(--gold); padding: 0.9rem 1.1rem; background: #f6f1e3; margin-bottom: 2rem; font-size: 0.9rem; color: var(--muted); }
+  .expect-box strong { color: var(--ink); }
+
+  .btn-row { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1.5rem; }
+  .btn-primary, .btn-outline, .btn-ghost {
+    display: inline-block;
+    padding: 0.85rem 2rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: 2px solid var(--ink);
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-ghost { background: transparent; border-color: var(--border); color: var(--muted); }
+  .btn-ghost:hover { border-color: var(--ink); color: var(--ink); }
+
+  .error-msg { color: var(--accent); font-size: 0.88rem; margin-top: 0.8rem; display: none; }
+  .error-msg.show { display: block; }
+
+  .success-wrap { text-align: center; padding: 3rem 0; }
+  .success-icon { font-size: 2.5rem; margin-bottom: 1rem; color: var(--accent); }
+  .loading { color: var(--muted); font-size: 0.88rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">AP<span style="color:var(--accent)">.</span></a>
+  <a href="/" class="nav-back">&larr; Back to site</a>
+</nav>
+
+<div class="wrap">
+  <div class="eyebrow">Let's Connect</div>
+  <h1>Book a Time <em>With Me</em></h1>
+  <p class="sub">Tell me why you want to talk, pick a slot that works, and I'll confirm by email. You'll see exactly what you're booking before you send anything.</p>
+
+  <div class="steps-track">
+    <div class="step-dot active" data-step="0">1. Why</div>
+    <div class="step-dot" data-step="1">2. Format</div>
+    <div class="step-dot" data-step="2">3. Time</div>
+    <div class="step-dot" data-step="3">4. You</div>
+    <div class="step-dot" data-step="4">5. Confirm</div>
+  </div>
+
+  <!-- STEP 0: REASON -->
+  <div class="panel active" data-panel="0">
+    <div class="panel-title">What do you want to talk about?</div>
+    <div class="panel-hint">This helps me prep — pick whichever fits best.</div>
+    <div class="option-grid" id="reasonGrid"></div>
+    <div class="btn-row">
+      <span></span>
+      <button class="btn-primary" id="next0" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 1: FORMAT -->
+  <div class="panel" data-panel="1">
+    <div class="panel-title">How do you want to connect?</div>
+    <div class="panel-hint">Pick whatever's easiest on your end.</div>
+    <div class="option-grid" id="methodGrid"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" data-back="0">Back</button>
+      <button class="btn-primary" id="next1" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: TIME -->
+  <div class="panel" data-panel="2">
+    <div class="panel-title">Pick a date and time</div>
+    <p class="tz-note">Times shown in Central Time (Houston)<span id="localTzNote"></span>.</p>
+    <div id="availabilityLoading" class="loading">Loading open times…</div>
+    <div id="dateRow" class="date-row"></div>
+    <div id="timeGrid" class="time-grid"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" data-back="1">Back</button>
+      <button class="btn-primary" id="next2" disabled>Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONTACT -->
+  <div class="panel" data-panel="3">
+    <div class="panel-title">Your details</div>
+    <div class="panel-hint">So I know who I'm talking to and how to reach you.</div>
+    <div class="field-row">
+      <div class="field"><label>Full name *</label><input type="text" id="fName" /></div>
+      <div class="field"><label>Email *</label><input type="email" id="fEmail" /></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Company / role</label><input type="text" id="fCompany" /></div>
+      <div class="field"><label id="fPhoneLabel">Phone</label><input type="tel" id="fPhone" /></div>
+    </div>
+    <div class="field"><label>What should I know going in? (optional)</label><textarea id="fMessage" placeholder="Agenda, links, context — anything that helps me prep."></textarea></div>
+    <div class="error-msg" id="contactError">Please fill in your name and a valid email.</div>
+    <div class="btn-row">
+      <button class="btn-ghost" data-back="2">Back</button>
+      <button class="btn-primary" id="next3">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: REVIEW -->
+  <div class="panel" data-panel="4">
+    <div class="panel-title">Review before you send this</div>
+    <div class="panel-hint">Here's exactly what happens next — make sure it's right.</div>
+    <div class="summary-card" id="summaryCard"></div>
+    <div class="expect-box">
+      <strong>What to expect:</strong> This is a request, not a confirmed meeting yet. I personally review every request and confirm by email — usually within a day. You'll get a confirmation email the moment I accept (or hear from me directly if I need to suggest another time).
+    </div>
+    <div class="error-msg" id="submitError"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" data-back="3">Back</button>
+      <button class="btn-primary" id="submitBtn">Send Request</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="panel" data-panel="5">
+    <div class="success-wrap">
+      <div class="success-icon">&#10003;</div>
+      <div class="panel-title">Request sent</div>
+      <p class="sub" style="margin: 0 auto 1.5rem;" id="successDetail">Check your email for a copy of this request.</p>
+      <a href="/" class="btn-primary">Back to site</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://oebbaauyjgajhpwyeneh.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lYmJhYXV5amdhamhwd3llbmVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MTY3ODEsImV4cCI6MjA5MzE5Mjc4MX0.fC2yUsgoq9WttTpc34HNsGdz4pOLrXAVyPZg6mLVr3g";
+
+  function fnUrl(name) { return `${SUPABASE_URL}/functions/v1/${name}`; }
+  function authHeaders(extra) {
+    return Object.assign({
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "apikey": SUPABASE_ANON_KEY,
+      "Content-Type": "application/json",
+    }, extra || {});
+  }
+
+  const REASONS = [
+    { id: "i-am", title: "I AM — Venture Studio", desc: "Partnership, investment, or building something together under the I AM umbrella." },
+    { id: "fresh-dabba", title: "Fresh Dabba", desc: "Questions, partnership, or feedback about the Fresh Dabba food platform." },
+    { id: "villageconnect", title: "VillageConnect", desc: "Community features, collaboration, or how VillageConnect could help your org." },
+    { id: "pawsconnect", title: "PawsConnect", desc: "Anything related to the PawsConnect iOS app." },
+    { id: "general", title: "Something else", desc: "Job opportunity, advice, speaking, or anything not listed above." },
+  ];
+
+  const METHODS = [
+    { id: "video", title: "Video call", desc: "I'll send a Google Meet link once confirmed." },
+    { id: "phone", title: "Phone call", desc: "I'll call the number you provide at the scheduled time." },
+    { id: "in-person", title: "In person — Houston, TX", desc: "Only available if you're local to Houston." },
+  ];
+
+  const state = {
+    reason: null,
+    method: null,
+    date: null,
+    time: null,
+    name: "", email: "", company: "", phone: "", message: "",
+  };
+
+  let slotsByDate = {};
+  let currentStep = 0;
+
+  function renderOptionGrid(container, items, key) {
+    container.innerHTML = "";
+    items.forEach((item) => {
+      const el = document.createElement("div");
+      el.className = "option-card";
+      el.innerHTML = `<div class="option-title">${item.title}</div><div class="option-desc">${item.desc}</div>`;
+      el.addEventListener("click", () => {
+        state[key] = item.id;
+        container.querySelectorAll(".option-card").forEach((c) => c.classList.remove("selected"));
+        el.classList.add("selected");
+        document.getElementById(`next${currentStep}`).disabled = false;
+      });
+      container.appendChild(el);
+    });
+  }
+
+  renderOptionGrid(document.getElementById("reasonGrid"), REASONS, "reason");
+  renderOptionGrid(document.getElementById("methodGrid"), METHODS, "method");
+
+  function showStep(n) {
+    document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("active", Number(p.dataset.panel) === n));
+    document.querySelectorAll(".step-dot").forEach((d) => {
+      const idx = Number(d.dataset.step);
+      d.classList.toggle("active", idx === n);
+      d.classList.toggle("done", idx < n);
+    });
+    currentStep = n;
+    if (n === 2 && Object.keys(slotsByDate).length === 0) loadAvailability();
+    if (n === 3) {
+      document.getElementById("fPhoneLabel").textContent = state.method === "phone" ? "Phone *" : "Phone";
+    }
+    if (n === 4) renderSummary();
+  }
+
+  document.getElementById("next0").addEventListener("click", () => showStep(1));
+  document.getElementById("next1").addEventListener("click", () => showStep(2));
+  document.getElementById("next2").addEventListener("click", () => showStep(3));
+
+  document.getElementById("next3").addEventListener("click", () => {
+    state.name = document.getElementById("fName").value.trim();
+    state.email = document.getElementById("fEmail").value.trim();
+    state.company = document.getElementById("fCompany").value.trim();
+    state.phone = document.getElementById("fPhone").value.trim();
+    state.message = document.getElementById("fMessage").value.trim();
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.email);
+    const phoneOk = state.method !== "phone" || state.phone.length > 0;
+    const err = document.getElementById("contactError");
+    if (!state.name || !emailValid || !phoneOk) {
+      err.textContent = !phoneOk
+        ? "Please provide a phone number since you chose a phone call."
+        : "Please fill in your name and a valid email.";
+      err.classList.add("show");
+      return;
+    }
+    err.classList.remove("show");
+    showStep(4);
+  });
+
+  document.querySelectorAll("[data-back]").forEach((btn) => {
+    btn.addEventListener("click", () => showStep(Number(btn.dataset.back)));
+  });
+
+  async function loadAvailability() {
+    const loading = document.getElementById("availabilityLoading");
+    loading.style.display = "block";
+    try {
+      const res = await fetch(`${fnUrl("get-availability")}?days=21`, { headers: authHeaders() });
+      const data = await res.json();
+      slotsByDate = data.slotsByDate || {};
+      renderDates();
+    } catch (e) {
+      loading.textContent = "Couldn't load availability — please refresh and try again.";
+      return;
+    }
+    loading.style.display = "none";
+  }
+
+  function renderDates() {
+    const dateRow = document.getElementById("dateRow");
+    dateRow.innerHTML = "";
+    const dates = Object.keys(slotsByDate).sort();
+    if (dates.length === 0) {
+      dateRow.innerHTML = '<div class="loading">No open times in the next few weeks — check back soon.</div>';
+      return;
+    }
+    dates.forEach((dateStr) => {
+      const d = new Date(`${dateStr}T12:00:00Z`);
+      const dow = d.toLocaleDateString("en-US", { weekday: "short", timeZone: "America/Chicago" });
+      const md = d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/Chicago" });
+      const pill = document.createElement("div");
+      pill.className = "date-pill";
+      pill.innerHTML = `<span class="dow">${dow}</span>${md}`;
+      pill.addEventListener("click", () => {
+        state.date = dateStr;
+        state.time = null;
+        document.getElementById("next2").disabled = true;
+        dateRow.querySelectorAll(".date-pill").forEach((p) => p.classList.remove("selected"));
+        pill.classList.add("selected");
+        renderTimes(dateStr);
+      });
+      dateRow.appendChild(pill);
+    });
+    dateRow.querySelector(".date-pill").click();
+  }
+
+  function renderTimes(dateStr) {
+    const grid = document.getElementById("timeGrid");
+    grid.innerHTML = "";
+    (slotsByDate[dateStr] || []).forEach((time) => {
+      const [h, m] = time.split(":").map(Number);
+      const period = h >= 12 ? "PM" : "AM";
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      const label = `${h12}:${String(m).padStart(2, "0")} ${period}`;
+      const btn = document.createElement("div");
+      btn.className = "time-btn";
+      btn.textContent = label;
+      btn.addEventListener("click", () => {
+        state.time = time;
+        grid.querySelectorAll(".time-btn").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        document.getElementById("next2").disabled = false;
+      });
+      grid.appendChild(btn);
+    });
+  }
+
+  try {
+    const localTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (localTz && localTz !== "America/Chicago") {
+      document.getElementById("localTzNote").textContent = ` (your device timezone: ${localTz})`;
+    }
+  } catch (e) {}
+
+  function findLabel(list, id) {
+    const found = list.find((x) => x.id === id);
+    return found ? found.title : id;
+  }
+
+  function renderSummary() {
+    const d = new Date(`${state.date}T12:00:00Z`);
+    const dateLabel = d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", timeZone: "America/Chicago" });
+    const [h, m] = state.time.split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    const timeLabel = `${h12}:${String(m).padStart(2, "0")} ${period} Central`;
+
+    const rows = [
+      ["Topic", findLabel(REASONS, state.reason)],
+      ["Format", findLabel(METHODS, state.method)],
+      ["When", `${dateLabel} at ${timeLabel}`],
+      ["Name", state.name],
+      ["Email", state.email],
+      ["Company", state.company || "—"],
+      ["Phone", state.phone || "—"],
+      ["Notes", state.message || "—"],
+    ];
+    document.getElementById("summaryCard").innerHTML = rows
+      .map(([label, value]) => `<div class="summary-row"><div class="summary-label">${label}</div><div class="summary-value">${value}</div></div>`)
+      .join("");
+  }
+
+  document.getElementById("submitBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("submitBtn");
+    const err = document.getElementById("submitError");
+    err.classList.remove("show");
+    btn.disabled = true;
+    btn.textContent = "Sending…";
+    try {
+      const res = await fetch(fnUrl("create-booking"), {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({
+          name: state.name,
+          email: state.email,
+          company: state.company,
+          phone: state.phone,
+          reason: state.reason,
+          connectionMethod: state.method,
+          message: state.message,
+          date: state.date,
+          time: state.time,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        err.textContent = data.error || "Something went wrong. Please try again.";
+        err.classList.add("show");
+        btn.disabled = false;
+        btn.textContent = "Send Request";
+        if (res.status === 409) {
+          slotsByDate = {};
+          showStep(2);
+        }
+        return;
+      }
+      document.getElementById("successDetail").textContent =
+        `You'll get a confirmation email at ${state.email} once I review and accept.`;
+      showStep(5);
+    } catch (e) {
+      err.textContent = "Network error — please check your connection and try again.";
+      err.classList.add("show");
+      btn.disabled = false;
+      btn.textContent = "Send Request";
+    }
+  });
+</script>
+
+</body>
+</html>
